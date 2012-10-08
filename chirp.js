@@ -42,10 +42,12 @@ var Chirp = function (opts) {
     function dotData(d, dotKey) {
       var invert = '';
       var val;
+
       if (dotKey.indexOf("!") > -1) {
         dotKey = dotKey.replace(/!/ig, '');
         invert = '!';
       }
+
       try {
         val = eval(invert + "d['" + dotKey.split('.').join("']['") + "']");
       } catch (e) {
@@ -60,6 +62,7 @@ var Chirp = function (opts) {
     for (i = 0; i < matches.length; ++i) {
       var m = matches[i];
       var val;
+
       val = dotData(data, matches[i].replace(/\{\{|\}\}/ig, '')) || '';
       output = output.replace(new RegExp(m, 'igm'), val);
     }
@@ -67,7 +70,7 @@ var Chirp = function (opts) {
     return output;
   }
 
-  function ext(o1, o2) {
+  ext = function (o1, o2) {
     var key;
     for (key in o2) {
       if (o1.hasOwnProperty(key)) {
@@ -78,9 +81,9 @@ var Chirp = function (opts) {
         }
       }
     }
-  }
+  };
 
-  function ago(time) {
+  ago = function (time) {
     var date;
     var diff;
     var day_diff;
@@ -123,9 +126,9 @@ var Chirp = function (opts) {
           time: Math.ceil(day_diff / 7)
         }
       );
-  }
+  };
 
-  function htmlify(txt, entities) {
+  htmlify = function (txt, entities) {
     var indices = [];
     var key;
     var i;
@@ -148,6 +151,7 @@ var Chirp = function (opts) {
         return '<a href="' + e.expanded_url + '">' + e.display_url + '</a>';
       }
     };
+
     if (entities) {
       for (key in entities) {
         e = entities[key];
@@ -168,10 +172,11 @@ var Chirp = function (opts) {
         html = html.substr(0, indices[i].start) + indices[i].link + html.substr(indices[i].end, html.length - 1);
       }
     }
-    return html;
-  }
 
-  function toHTML(json) {
+    return html;
+  };
+
+  toHTML = function (json) {
     var twts = '';
     var i;
     var twt;
@@ -189,15 +194,18 @@ var Chirp = function (opts) {
     }
 
     return render(options.templates.base, {tweets: twts});
-  }
+  };
 
-  function cache(key, json) {
+  cache = function (key, json) {
     var localStorage;
+
     if (localStorage && JSON) {
       var now;
       var cachedData;
+
       now = new Date().getTime();
       cachedData = null;
+
       if (json === undefined) {
         try {
           var unescape;
@@ -226,9 +234,9 @@ var Chirp = function (opts) {
     } else {
       return null;
     }
-  }
+  };
 
-  function load() {
+  load = function () {
     var get;
     var callkey;
     var script;
@@ -246,11 +254,13 @@ var Chirp = function (opts) {
     scriptInBody = script.parentNode.nodeName !== 'head';
     Chirp[callkey] = function (json, cached) {
       json = json.results || json;
+
       if (cached !== true) {
         cache(url, json);
       }
       var twts = document.createElement('div');
       twts.innerHTML = toHTML(json);
+
       if (options.target === null) {
         script.parentNode.insertBefore(twts, script);
       } else {
@@ -260,15 +270,16 @@ var Chirp = function (opts) {
     };
     get.onerror = options.error;
     cachedData = cache(url);
+
     if (cachedData) {
       Chirp[callkey](cachedData, true);
     } else {
       get.src = url + '&callback=Chirp.' + callkey;
       document.getElementsByTagName('head')[0].appendChild(get);
     }
-  }
+  };
 
-  function init(opts) {
+  init = function (opts) {
     if (opts && opts !== undefined) {
       if (opts.constructor === String) {
         var a = opts.split('/'), o = {};
@@ -279,10 +290,11 @@ var Chirp = function (opts) {
         ext(options, opts);
       }
     }
-  }
+  };
 
   this.show = function (opts) {
     init(opts);
+
     if (options.target) {
       document.getElementById(options.target).innerHTML = '';
     }
